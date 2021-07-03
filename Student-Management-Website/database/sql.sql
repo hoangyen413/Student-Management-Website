@@ -25,7 +25,9 @@ insert into THAMSO values('TTĐ','Tuổi tối đa',20, 'Tuổi tối đa của 
 insert into THAMSO values('SSTĐ','Sỉ số tối đa',40, 'Sỉ số tối đa của lớp');
 insert into THAMSO values('ĐĐM','Điểm đạt môn',5, 'Điểm đạt môn của học sinh');
 insert into THAMSO values('ĐLL','Điểm lên lớp',3, 'Điểm lên lớp của học sinh');
-
+insert into THAMSO values('HS15P','Hệ số cột 15 phút',3, 'Hệ số cột 15 phút');
+insert into THAMSO values('HS1T','Hệ số cột 1 tiết',3, 'Hệ số cột 1 tiết');
+insert into THAMSO values('HSHK','Hệ số cột cuối kỳ',3, 'Hệ số cột cuối kỳ');
 
 -- TABLE LOP
 create table LOP(
