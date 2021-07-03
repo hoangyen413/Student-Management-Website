@@ -117,25 +117,15 @@ include 'checkloginstatus.php';
 if (isset($_POST['mahocky'])) {
     include 'connectdb.php';
     $mahocky = $_POST['mahocky'];
-
-    // if user has not enter the point of student, then the computer wil count it as not fail
-    // $sql="select l.malop, l.siso, COUNT(hs.mahocsinh) as 'Số lượng đạt', (COUNT(hs.mahocsinh)/l.siso)*100 as 'Tỉ lệ %'
-    // from LOP l, HOCSINH hs, PHIEUDIEM pd, HOCKY hk
-    // where l.malop = hs.malop
-    // and hk.mahocky = pd.mahocky
-    // and pd.mahocsinh = hs.mahocsinh
-    // and hk.mahocky = '$mahocky'
-    // and hs.mahocsinh not in (
-    // select distinct hs.mahocsinh
-    // where hk.mahocky = '$mahocky'
-    // and (pd.diem15p + pd.diem1t * 2 + pd.diemcuoiky * 5)/8 < (
-    //     select giatri
-    //     from THAMSO
-    //     where THAMSO.mathamso = 'ĐĐM'
-    // )
-    // )
-    // group by l.malop;
-    // ";
+    $sql4="select giatri from THAMSO where mathamso='HS15P'";
+    $result4=$conn->query($sql4);
+    $hs15p=$result4->fetch_assoc();
+    $sql5="select giatri from THAMSO where mathamso='HS1T'";
+    $result5=$conn->query($sql5);
+    $hs1t=$result5->fetch_assoc();
+    $sql6="select giatri from THAMSO where mathamso='HSHK'";
+    $result6=$conn->query($sql6);
+    $hshk=$result6->fetch_assoc();
     $sql = "select l.malop, l.siso, COUNT(hs.mahocsinh) as 'Số lượng đạt', (COUNT(hs.mahocsinh)/l.siso)*100 as 'Tỉ lệ %'
     from LOP l, HOCSINH hs
     where l.malop = hs.malop
@@ -145,7 +135,7 @@ if (isset($_POST['mahocky'])) {
     where pd.mahocsinh = hs.mahocsinh
     and pd.mahocky = hk.mahocky
     and hk.mahocky = '$mahocky'
-    and (pd.diem15p + pd.diem1t * 2 + pd.diemcuoiky * 5)/8 < (
+    and (pd.diem15p *".$hs15p["giatri"]." + pd.diem1t * ".$hs1t["giatri"]." + pd.diemcuoiky * ".$hshk["giatri"].")/".($hs15p["giatri"]+$hs1t["giatri"]+$hshk["giatri"])." < (
         select giatri
         from THAMSO
         where THAMSO.mathamso = 'ĐLL'
