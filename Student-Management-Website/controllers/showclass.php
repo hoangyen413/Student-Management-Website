@@ -133,8 +133,17 @@ include 'checkloginstatus.php';
 
     $sql = "select * from HOCSINH where malop = '$malop'";
     $sql2="select * from HOCSINH where malop =(select maloptt from LOP where malop='$malop')";
+    $sql3="select giatri from THAMSO where mathamso='HS15P'";
+    $result3=$conn->query($sql3);
+    $hs15p=$result3->fetch_assoc();
+    $sql4="select giatri from THAMSO where mathamso='HS1T'";
+    $result4=$conn->query($sql4);
+    $hs1t=$result4->fetch_assoc();
+    $sql5="select giatri from THAMSO where mathamso='HSHK'";
+    $result5=$conn->query($sql5);
+    $hshk=$result5->fetch_assoc();
     $check="select distinct hs.mahocsinh from HOCSINH hs, PHIEUDIEM pd where malop='$malop' and hs.mahocsinh=pd.mahocsinh 
-    and (pd.diem15p + pd.diem1t * 2 + pd.diemcuoiky * 5)/8 < (
+    and (pd.diem15p * ".$hs15p["giatri"]." + pd.diem1t * ".$hs1t["giatri"]." + pd.diemcuoiky * ".$hshk["giatri"].")/".($hs15p["giatri"]+$hs1t["giatri"]+$hshk["giatri"])." < (
         select giatri
         from THAMSO
         where THAMSO.mathamso = 'ĐLL')";
@@ -178,6 +187,11 @@ include 'checkloginstatus.php';
     if ($result1->num_rows > 0) {
         echo "<input type='hidden' id='llmalop' value='".$malop."'>
         <input type='text' placeholder='Ma lop cho hoc sinh o lai lop' id='kll' name='kll' >
+        <br>
+        <button type='submit' class='btn btn-primary' onclick='increaseclass()'>Len lop</button>"; 
+    }else{ 
+        echo "<input type='hidden' id='llmalop' value='".$malop."'>
+        <input type='hidden' placeholder='Ma lop cho hoc sinh o lai lop' id='kll' name='kll' value='' >
         <br>
         <button type='submit' class='btn btn-primary' onclick='increaseclass()'>Len lop</button>"; 
     }
