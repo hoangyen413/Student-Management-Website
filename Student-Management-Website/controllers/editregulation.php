@@ -10,8 +10,8 @@
         $giatri = $_GET['giatri'];
         $sql = "update THAMSO set giatri = '$giatri' where mathamso = '$mathamso';" ;
         if($conn->query($sql)==TRUE)
-        {echo "Sua thanh cong";}
-        else{echo "Sua that bai";}
+        {echo "Sửa thành công";}
+        else{echo "Sửa thất bại";}
         $conn->close();
     }
     // delete regulation
@@ -47,7 +47,7 @@
         // echo "$sql";
         // die();
         if($conn->query($sql)==TRUE){ 
-            echo "Sua thành công";
+            echo "Sửa thành công";
         }else{ 
             echo "Error in ".$sql."<br>".$conn->error;
         }
@@ -64,10 +64,10 @@
         if ($result->num_rows ==0) {
             $sql = "delete from MONHOC where mamonhoc ='$mamonhoc'";
             
-            echo "Xoa thanh cong";
+            echo "Xóa thành công!";
             $conn->close();
         }else {
-            echo "Khong the xoa";
+            echo "Không thể xóa!";
             $conn->close();
         }
     }
@@ -94,7 +94,7 @@
          // echo "$sql";
          // die();
          if($conn->query($sql)==TRUE){ 
-            echo "Sua thành công";
+            echo "Sửa thành công";
         }else{ 
             echo "Error in ".$sql."<br>".$conn->error;
         }
@@ -107,22 +107,31 @@
         $sql="select * from HOCSINH where malop='$malop' and NOT EXISTS(select * from PHIEUDIEM where HOCSINH.mahocsinh=PHIEUDIEM.mahocsinh and mahocky like 'hk2%')";
         $result=$conn->query($sql);
         if ($result->num_rows>0)
-        {echo "Nhap diem hoc ki 2";
+        {echo "Chưa nhập điểm học kỳ 2";
             $conn->close();
         }
         else{ 
+            $sql4="select giatri from THAMSO where mathamso='HS15P'";
+            $result4=$conn->query($sql4);
+            $hs15p=$result4->fetch_assoc();
+            $sql5="select giatri from THAMSO where mathamso='HS1T'";
+            $result5=$conn->query($sql5);
+            $hs1t=$result5->fetch_assoc();
+            $sql6="select giatri from THAMSO where mathamso='HSHK'";
+            $result6=$conn->query($sql6);
+            $hshk=$result6->fetch_assoc();
             $mysql="select distinct hs.mahocsinh from HOCSINH hs, PHIEUDIEM pd where malop='$malop' and hs.mahocsinh=pd.mahocsinh 
-            and (pd.diem15p + pd.diem1t * 2 + pd.diemcuoiky * 5)/8 < (
-                select giatri
-                from THAMSO
-                where THAMSO.mathamso = 'ĐLL')";
+            and (pd.diem15p * ".$hs15p["giatri"]." + pd.diem1t * ".$hs1t["giatri"]." + pd.diemcuoiky * ".$hshk["giatri"].")/".($hs15p["giatri"]+$hs1t["giatri"]+$hshk["giatri"])." < (
+            select giatri
+            from THAMSO
+            where THAMSO.mathamso = 'ĐLL')";
             $results=$conn->query($mysql);
-        
+            $stt1=0;
             
             if ($results->num_rows>0){ 
                
                 while($row=$results->fetch_assoc()){ 
-                    
+                    $stt1++;
                     $sl = "update HOCSINH set malop ='".$malopk."' WHERE mahocsinh='".$row["mahocsinh"]."'; ";
                     $resultsl=$conn->query($sl);
                 }
@@ -131,11 +140,13 @@
             $result1 = $conn->query($sql1);
             $gt=$result1->fetch_assoc();
             $sql2="update HOCSINH set malop ='".$gt["maloptt"]."' WHERE malop='$malop'";
+            $sql3="update LOP set siso='".($gt["siso"]-$stt1)."' WHERE malop='".$gt["maloptt"]."'";
+            $result3=$conn->query($sql3);
             if( $conn->query($sql2)==TRUE){ 
-                echo"len lop thanh cong";
+                echo"Lên lớp thành công!";
                 $conn->close();
             }else{ 
-                echo "that bai";
+                echo "thất bại";
                 $conn->close();
             }
             
@@ -154,10 +165,10 @@
         if ($result->num_rows ==0) {
             $sql = "delete from LOP where malop='$malop'";
             
-            echo "Xoa thanh cong";
+            echo "Xóa thành công";
             $conn->close();
         }else {
-            echo "Khong the xoa";
+            echo "Không thể xóa";
             $conn->close();
         }
         
