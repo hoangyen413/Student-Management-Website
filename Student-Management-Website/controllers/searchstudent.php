@@ -100,22 +100,17 @@ if (isset($_POST['searchstudent'])) {
     include 'connectdb.php';
     $searchstudent = $_POST['searchstudent'];
 
-    $sql = "select hs.hoten, hs.malop, AVG((pd.diem15p + pd.diem1t * 2 + pd.diemcuoiky * 5)/8 ) as TBHK1, hk2.TBHK2
-    from HOCSINH hs, PHIEUDIEM pd, 
-    (
-        select hs.hoten, AVG((pd.diem15p + pd.diem1t * 2 + pd.diemcuoiky * 5)/8 ) as TBHK2
-        from HOCSINH hs, PHIEUDIEM pd
-        where hs.mahocsinh = pd.mahocsinh
-        and hs.hoten = '$searchstudent'
-        and pd.mahocky = 'hk2'
-     ) as hk2
-        where hs.mahocsinh = pd.mahocsinh
-        and hs.hoten = hk2.hoten
-        and hs.hoten = '$searchstudent'
-        and pd.mahocky = 'hk1'
-    ";
+    $sql = "select hoten, malop, mahocsinh from hocsinh where hoten like '%$searchstudent%'";
+    $sql4="select giatri from THAMSO where mathamso='HS15P'";
+    $result4=$conn->query($sql4);
+    $hs15p=$result4->fetch_assoc();
+    $sql5="select giatri from THAMSO where mathamso='HS1T'";
+    $result5=$conn->query($sql5);
+    $hs1t=$result5->fetch_assoc();
+    $sql6="select giatri from THAMSO where mathamso='HSHK'";
+    $result6=$conn->query($sql6);
+    $hshk=$result6->fetch_assoc();
     $result = $conn->query($sql);
-
 
     echo "
         <div class='container'>
@@ -143,8 +138,30 @@ if (isset($_POST['searchstudent'])) {
             echo "<td>" . $stt . "</td>";
             echo "<td>" . $row['hoten'] . "</td>";
             echo "<td>" . $row['malop'] . "</td>";
-            echo "<td>" . $row['TBHK1'] . "</td>";
-            echo "<td>" . $row['TBHK2'] . "</td>";
+            $sql1="select AVG((pd.diem15p * ".$hs15p["giatri"]." + pd.diem1t * ".$hs1t["giatri"]." + pd.diemcuoiky * ".$hshk["giatri"].")/".($hs15p["giatri"]+$hs1t["giatri"]+$hshk["giatri"])." ) as TBHK1
+            from PHIEUDIEM pd
+            where pd.mahocsinh=".$row['mahocsinh']."
+            
+            and pd.mahocky = 'hk1_2020'" ;
+            $sql2="select AVG((pd.diem15p * ".$hs15p["giatri"]." + pd.diem1t * ".$hs1t["giatri"]." + pd.diemcuoiky * ".$hshk["giatri"].")/".($hs15p["giatri"]+$hs1t["giatri"]+$hshk["giatri"])." ) as TBHK2
+            from PHIEUDIEM pd
+            where pd.mahocsinh=".$row['mahocsinh']."
+            
+              and pd.mahocky = 'hk2_2020'" ;
+            $result1 = $conn->query($sql1);
+            $result2 = $conn->query($sql2);
+            if ($result1->num_rows > 0){ 
+                $tb1=$result1->fetch_assoc();
+                echo "<td>" . $tb1['TBHK1'] . "</td>";
+            }else{ 
+                echo"<td>Chua co du lieu</td>";
+            }
+            if ($result2->num_rows > 0){ 
+                $tb2=$result2->fetch_assoc();
+                echo "<td>" . $tb2['TBHK2'] . "</td>";
+            }else{ 
+                echo"<td>Chua co du lieu</td>";
+            }
             echo "</tr>";
         }
        
